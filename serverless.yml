@@ -46,6 +46,20 @@ functions:
           path: products
           method: post
           cors: true
+  listTodos:
+    handler: bin/handlers/listProducts
+    events:
+      - http:
+          path: products
+          method: get
+          cors: true  
+  deleteProduct:
+      handler: bin/handlers/deleteProduct
+      events:
+        - http:
+            path: products/{id}
+            method: delete
+            cors: true                
 
 resources:
   Resources: # Supporting AWS services
