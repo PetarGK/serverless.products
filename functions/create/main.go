@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -15,10 +16,21 @@ func main() {
 	lambda.Start(func(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 		fmt.Println("Add Product")
 
-		Product product;
+		product := Product{}
 
 		json.Unmarshal([]byte(request.Body), product)
 
-		return service.Create(product), nil
+		if _, err := service.Create(product); err != nil {
+			return events.APIGatewayProxyResponse{ // Error HTTP response
+				Body:       err.Error(),
+				StatusCode: 500,
+			}, nil
+		}
+
+		body, _ := json.Marshal(product)
+		return events.APIGatewayProxyResponse{ // Success HTTP response
+			Body:       string(body),
+			StatusCode: 200,
+		}, nil
 	})
 }
