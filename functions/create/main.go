@@ -15,6 +15,10 @@ func main() {
 	lambda.Start(func(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 		fmt.Println("Add Product")
 
-		return service.Create(nil), nil
+		Product product;
+
+		json.Unmarshal([]byte(request.Body), product)
+
+		return service.Create(product), nil
 	})
 }
