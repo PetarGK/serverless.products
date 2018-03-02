@@ -26,7 +26,7 @@ func init() {
 }
 
 func DeleteProduct(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	fmt.Println("DeleteProduct")
+	fmt.Println("Delete Product")
 
 	// Parse id from request body
 	var (

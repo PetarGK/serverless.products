@@ -14,11 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type Product struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"created_at"`
+type product struct {
+	id          string `json:"id"`
+	name        string `json:"name"`
+	description string `json:"description"`
+	createdAt   string `json:"created_at"`
 }
 
 type ListProductsResponse struct {

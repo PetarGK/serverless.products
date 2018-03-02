@@ -17,13 +17,6 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-type Product struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"created_at"`
-}
-
 var ddb *dynamodb.DynamoDB
 
 func init() {
@@ -38,7 +31,7 @@ func init() {
 }
 
 func AddProduct(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	fmt.Println("AddProduct")
+	fmt.Println("Add Product")
 
 	var (
 		id        = uuid.Must(uuid.NewV4(), nil).String()
@@ -46,9 +39,9 @@ func AddProduct(ctx context.Context, request events.APIGatewayProxyRequest) (eve
 	)
 
 	// Initialize product
-	product := &Product{
-		ID:        id,
-		CreatedAt: time.Now().String(),
+	product := &product{
+		id:        id,
+		createdAt: time.Now().String(),
 	}
 
 	// Parse request body
