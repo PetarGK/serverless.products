@@ -2,14 +2,10 @@ package products
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/petargk/serverless.products/lib"
 	"github.com/satori/go.uuid"
 )
 
@@ -29,18 +25,7 @@ type List struct {
 	Products []Product `json:"products"`
 }
 
-var ddb *dynamodb.DynamoDB
-
-func init() {
-	region := os.Getenv("AWS_REGION")
-	if session, err := session.NewSession(&aws.Config{ // Use aws sdk to connect to dynamoDB
-		Region: &region,
-	}); err != nil {
-		fmt.Println(fmt.Sprintf("Failed to connect to AWS: %s", err.Error()))
-	} else {
-		ddb = dynamodb.New(session) // Create DynamoDB client
-	}
-}
+var db serverless.Dynamodb
 
 // Create product
 func (products Products) Create(product *Product) (*Product, int, error) {
@@ -60,13 +45,7 @@ func (products Products) Create(product *Product) (*Product, int, error) {
 	product.ID = uuid.Must(uuid.NewV4(), nil).String()
 	product.CreatedAt = time.Now().String()
 
-	item, _ := dynamodbattribute.MarshalMap(product)
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(os.Getenv("PRODUCTS_TABLE_NAME")),
-	}
-
-	if _, err := ddb.PutItem(input); err != nil {
+	if err := db.Add(product, os.Getenv("PRODUCTS_TABLE_NAME")); err != nil {
 		return nil, 501, err
 	}
 
