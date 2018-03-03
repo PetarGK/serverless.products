@@ -43,34 +43,34 @@ func init() {
 }
 
 // Create product
-func (products Products) Create(product Product) (Product, error) {
-	var (
-		id        = uuid.Must(uuid.NewV4(), nil).String()
-		tableName = aws.String(os.Getenv("PRODUCTS_TABLE_NAME"))
-	)
+func (products Products) Create(product *Product) (*Product, int, error) {
 
-	// validate product
+	if product == nil {
+		return nil, 401, errors.New("Invalid product")
+	}
+
 	if product.Name == "" {
-		return product, errors.New("Name can't be empty")
+		return product, 401, errors.New("Name can't be empty")
 	}
 
 	if product.Description == "" {
-		return product, errors.New("Description can't be empty")
+		return product, 401, errors.New("Description can't be empty")
 	}
 
-	// persist product
-	product.ID = id
+	product.ID = uuid.Must(uuid.NewV4(), nil).String()
 	product.CreatedAt = time.Now().String()
 
 	item, _ := dynamodbattribute.MarshalMap(product)
 	input := &dynamodb.PutItemInput{
 		Item:      item,
-		TableName: tableName,
+		TableName: aws.String(os.Getenv("PRODUCTS_TABLE_NAME")),
 	}
 
-	_, err := ddb.PutItem(input)
+	if _, err := ddb.PutItem(input); err != nil {
+		return nil, 501, err
+	}
 
-	return product, err
+	return product, 201, nil
 }
 
 // Update product

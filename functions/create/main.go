@@ -10,27 +10,28 @@ import (
 	"github.com/petargk/serverless.products/products"
 )
 
-func main() {
+// AddProduct function
+func AddProduct(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	fmt.Println("Add Product")
 	service := products.Products{}
+	product := &products.Product{}
+	json.Unmarshal([]byte(request.Body), product)
+	product, code, err := service.Create(product)
 
-	lambda.Start(func(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		fmt.Println("Add Product")
-
-		product := Product{}
-
-		json.Unmarshal([]byte(request.Body), product)
-
-		if _, err := service.Create(product); err != nil {
-			return events.APIGatewayProxyResponse{ // Error HTTP response
-				Body:       err.Error(),
-				StatusCode: 500,
-			}, nil
-		}
-
+	var result string
+	if err != nil {
+		result = err.Error()
+	} else {
 		body, _ := json.Marshal(product)
-		return events.APIGatewayProxyResponse{ // Success HTTP response
-			Body:       string(body),
-			StatusCode: 200,
-		}, nil
-	})
+		result = string(body)
+	}
+
+	return events.APIGatewayProxyResponse{
+		Body:       result,
+		StatusCode: code,
+	}, nil
+}
+
+func main() {
+	lambda.Start(AddProduct)
 }
