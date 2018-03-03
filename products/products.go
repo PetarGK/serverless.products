@@ -1,7 +1,6 @@
 package products
 
 import (
-	"errors"
 	"os"
 	"time"
 
@@ -28,28 +27,28 @@ type List struct {
 var db serverless.Dynamodb
 
 // Create product
-func (products Products) Create(product *Product) (*Product, int, error) {
+func (products Products) Create(product *Product) (*Product, *serverless.ServiceError) {
 
 	if product == nil {
-		return nil, 401, errors.New("Invalid product")
+		return nil, serverless.Error("Invalid product", 401)
 	}
 
 	if product.Name == "" {
-		return product, 401, errors.New("Name can't be empty")
+		return nil, serverless.Error("Name can't be empty", 401)
 	}
 
 	if product.Description == "" {
-		return product, 401, errors.New("Description can't be empty")
+		return nil, serverless.Error("Description can't be empty", 401)
 	}
 
 	product.ID = uuid.Must(uuid.NewV4(), nil).String()
 	product.CreatedAt = time.Now().String()
 
 	if err := db.Add(product, os.Getenv("PRODUCTS_TABLE_NAME")); err != nil {
-		return nil, 501, err
+		return nil, serverless.Error(err.Error(), 501)
 	}
 
-	return product, 201, nil
+	return product, nil
 }
 
 // Update product

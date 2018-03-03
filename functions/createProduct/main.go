@@ -15,11 +15,14 @@ func main() {
 		service := products.Products{}
 		product := &products.Product{}
 		json.Unmarshal([]byte(request.Body), product)
-		product, code, err := service.Create(product)
+		product, err := service.Create(product)
 
 		var result string
+		var code = 201
+
 		if err != nil {
 			result = err.Error()
+			code = err.Code
 		} else {
 			body, _ := json.Marshal(product)
 			result = string(body)
